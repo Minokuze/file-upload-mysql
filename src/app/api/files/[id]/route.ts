@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import ExcelJS from "exceljs";
+import * as XLSX from "xlsx";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   // Await params to ensure it is resolved
@@ -8,25 +8,35 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
   const [rows] = await pool.query("SELECT filename, file_data FROM files WHERE id = ?", [id]);
 
-  if (rows.length === 0) return NextResponse.json({ error: "File not found" }, { status: 404 });
+  if (rows.length === 0)
+    return NextResponse.json({ error: "File not found" }, { status: 404 });
 
   const { filename, file_data } = rows[0];
 
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(file_data);
+  // Read the file buffer using SheetJS
+  const workbook = XLSX.read(file_data, { type: "buffer" });
 
-  const worksheet = workbook.worksheets[0];
-  const jsonData: any[] = [];
+  // Assuming you are working with the first sheet
+  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-  worksheet.eachRow((row, rowNumber) => {
-    if (rowNumber === 1) return; // Skip header
-    const rowData: any = {};
-    row.eachCell((cell, colNumber) => {
-      const header = worksheet.getRow(1).getCell(colNumber).value;
-      rowData[header as string] = cell.value;
-    });
-    jsonData.push(rowData);
+  // Use sheet_to_json to convert sheet to JSON and handle empty cells
+  // Set defval to an empty string to ensure empty cells are included as empty values
+  const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+    defval: "", // Use an empty string for empty cells
+    header: 1,  // Consider the first row as headers
   });
 
-  return NextResponse.json({ filename, data: jsonData });
+  // Convert the array of arrays (because we used header: 1) into an array of objects
+  const headers = jsonData[0]; // First row as header
+  const rowsData = jsonData.slice(1); // All subsequent rows are the actual data
+
+  const formattedData = rowsData.map((row) => {
+    const rowData: any = {};
+    headers.forEach((header, index) => {
+      rowData[header] = row[index];
+    });
+    return rowData;
+  });
+
+  return NextResponse.json({ filename, data: formattedData });
 }
