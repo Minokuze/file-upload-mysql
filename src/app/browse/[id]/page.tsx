@@ -3,34 +3,42 @@
 import { JSX, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
-// Updated pipe function to handle empty cells more robustly
+// Enhanced pipe function to handle empty cells and dash values
 const pipe = (value: any): JSX.Element | string => {
-  // Check for explicit null, undefined or empty string
-  if (value === null || value === undefined || value === "") {
+  // If the value is null or undefined, treat it as an empty string.
+  if (value === null || value === undefined) {
     return <span className="text-gray-500">—</span>;
   }
 
-  // If the value is an object, handle it further
+  // For non-object values, convert to string and trim it.
+  if (typeof value !== "object") {
+    const strValue = String(value).trim();
+    if (strValue === "" || strValue === "-" || strValue === "--") {
+      return <span className="text-gray-500">—</span>;
+    }
+    return strValue;
+  }
+
+  // For object values, check if the object is empty.
   if (typeof value === "object") {
-    // If the object is empty, return the placeholder
     if (Object.keys(value).length === 0) {
       return <span className="text-gray-500">—</span>;
     }
-
-    // If the object has a "result" property, use that value if it exists and is not empty
+    // If the object has a "result" property, use it for rendering.
     if ("result" in value) {
       const result = value.result;
-      if (result === null || result === undefined || result === "") {
+      const resStr =
+        result !== null && result !== undefined ? String(result).trim() : "";
+      if (resStr === "" || resStr === "-" || resStr === "--") {
         return <span className="text-gray-500">—</span>;
       }
-      return result;
+      return resStr;
     }
-
-    // Otherwise, for non-empty objects, try stringifying them (or customize as needed)
+    // Otherwise, convert the object to a string.
     return JSON.stringify(value);
   }
 
-  // For non-object, non-empty values, return them as is
+  // Fallback: return the value as is.
   return value;
 };
 
@@ -51,7 +59,7 @@ export default function FileContentsPage() {
 
   if (loading) return <p>Loading...</p>;
 
-  // Ensure headers are derived from the first row
+  // Derive headers from the first row of data, if available.
   const headers = fileData.data.length > 0 ? Object.keys(fileData.data[0]) : [];
 
   return (
@@ -69,7 +77,7 @@ export default function FileContentsPage() {
           {fileData.data.map((row: any, index: number) => (
             <tr key={index}>
               {headers.map((header, idx) => (
-                <td key={idx}>{pipe(row[header])}</td> // Ensure you reference the header for each row
+                <td key={idx}>{pipe(row[header])}</td>
               ))}
             </tr>
           ))}

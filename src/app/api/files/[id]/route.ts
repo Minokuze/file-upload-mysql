@@ -6,7 +6,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   // Await params to ensure it is resolved
   const { id } = await params;
 
-  const [rows] = await pool.query("SELECT filename, file_data FROM files WHERE id = ?", [id]);
+  const [rows]:[any] = await pool.query("SELECT filename, file_data FROM files WHERE id = ?", [id]);
 
   if (rows.length === 0)
     return NextResponse.json({ error: "File not found" }, { status: 404 });
@@ -27,12 +27,12 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   });
 
   // Convert the array of arrays (because we used header: 1) into an array of objects
-  const headers = jsonData[0]; // First row as header
+  const headers:any = jsonData[0]; // First row as header
   const rowsData = jsonData.slice(1); // All subsequent rows are the actual data
 
-  const formattedData = rowsData.map((row) => {
+  const formattedData = rowsData.map((row: any) => {
     const rowData: any = {};
-    headers.forEach((header, index) => {
+    headers.forEach((header: string | number, index: string | number) => {
       rowData[header] = row[index];
     });
     return rowData;
