@@ -2,7 +2,8 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const fileId = params.id;
 
   const [rows]: any = await pool.query("SELECT filename, file_data FROM files WHERE id = ?", [fileId]);
