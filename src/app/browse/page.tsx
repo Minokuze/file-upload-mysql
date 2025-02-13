@@ -66,7 +66,7 @@ export default function BrowsePage() {
   };
 
   return (
-    <div className="container mx-auto my-10 p-5">
+    <div className="container min-h-screen mx-auto my-10 p-5">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <Folder className="w-10 h-10 text-primary" />
@@ -105,20 +105,22 @@ export default function BrowsePage() {
                         {new Date(file.upload_date).toLocaleString()}
                       </td>
                       <td className="px-4 py-3 flex gap-2 justify-center">
-                        <button
-                          className="btn btn-sm btn-primary flex items-center gap-1"
-                          onClick={() => downloadFile(file.id)}
-                        >
-                          <Download className="w-4 h-4" />
-                          <span>Download</span>
-                        </button>
-                        <button
-                          className="btn btn-sm btn-error flex items-center gap-1"
-                          onClick={() => openDeleteModal(file.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          <span>Delete</span>
-                        </button>
+                      <button
+  className="btn btn-sm btn-primary flex items-center gap-1 sm:gap-2"
+  onClick={() => downloadFile(file.id)}
+>
+  <Download className="w-4 h-4" />
+  <span className="hidden sm:inline">Download</span>
+</button>
+
+<button
+  className="btn btn-sm btn-error flex items-center gap-1 sm:gap-2"
+  onClick={() => openDeleteModal(file.id)}
+>
+  <Trash2 className="w-4 h-4" />
+  <span className="hidden sm:inline">Delete</span>
+</button>
+
                       </td>
                     </tr>
                   ))}

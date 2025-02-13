@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/navbar";
 import Link from "next/link";
+import Footer from "./components/footer"
 
 
 const geistSans = Geist({
@@ -37,6 +38,7 @@ export default function RootLayout({
           <div className="drawer-content">
             <Navbar/>
             {children}
+            <Footer/>
           </div>
           <div className="drawer-side">
             <label
@@ -45,8 +47,8 @@ export default function RootLayout({
               className="drawer-overlay"
             ></label>
             
-            <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
-            <div>Dashboard</div>
+            <ul className="menu bg-base-200 text-base-content gap-3 min-h-full w-80 p-4">
+            <div className="text-2xl font-bold">Dashboard</div>
               {/* Sidebar content */}
               <li>
                 <Link href="/">Home</Link>

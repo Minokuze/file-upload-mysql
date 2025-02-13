@@ -127,7 +127,7 @@ export default function FileContentsPage() {
   };
 
   return (
-    <div className="p-5">
+    <div className="p-5 min-h-screen">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -136,18 +136,19 @@ export default function FileContentsPage() {
             <ArrowLeft className="w-4 h-4" />
           </button>
           <FileText className="w-10 h-10 text-primary" />
-          <h1 className="text-3xl font-bold text-accent-content ">
+          <h1 className="text-xl sm:text-3xl font-bold text-accent-content ">
             File: {fileData.filename}
           </h1>
         </div>
         {/* Export Button */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
-            className="btn btn-success text-white flex items-center gap-1"
+            className="btn btn-success text-white flex items-center gap-1 px-3 sm:px-4 sm:py-2.5"
             onClick={() => setShowExportModal(true)}
           >
-            <FolderDown className="w-4 h-4" />
-            <span>Export to Excel</span>
+            <FolderDown className="w-5 h-5 sm:w-6 sm:h-6" />
+            <span className="hidden xs:inline sm:inline">Export</span>
+            <span className="hidden md:inline sm:inline">to Excel</span>
           </button>
         </div>
       </div>
@@ -165,14 +166,14 @@ export default function FileContentsPage() {
             />
             <button type="submit" className="btn btn-accent text-white flex items-center gap-1">
               <Filter className="w-4 h-4" />
-              <span>Filter</span>
+              <span className="hidden sm:inline">Filter</span>
             </button>
           </div>
         </form>
       </div>
 
       {/* Save Changes Button */}
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4  flex items-center gap-2">
         <button
           className="btn btn-primary flex items-center gap-2 shadow-lg transition-transform hover:scale-105"
           onClick={async () => {
@@ -208,7 +209,7 @@ export default function FileContentsPage() {
           ) : (
             <>
               <Save className="w-5 h-5" />
-              Save Changes
+              <div className="hidden sm:inline">Save Changes</div>
             </>
           )}
         </button>
