@@ -45,6 +45,8 @@ export default function FileContentsPage() {
   const [exportFilename, setExportFilename] = useState("filtered_data");
   const [showExportModal, setShowExportModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10  //number of rows per page
 
   useEffect(() => {
     const fetchData = async () => {
@@ -125,6 +127,21 @@ export default function FileContentsPage() {
     XLSX.writeFile(wb, filename);
     setShowExportModal(false); // Close modal after exporting.
   };
+
+    //Pagination Logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem,indexOfLastItem);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage)
+
+    // Define the group size (max number of page buttons to show)
+    const groupSize = 10;
+
+    // Calculate the current group based on the currentPage
+    const currentGroup = Math.floor((currentPage - 1) / groupSize);
+    const startPage = currentGroup * groupSize + 1;
+    const endPage = Math.min(startPage + groupSize - 1, totalPages);
+
 
   return (
     <div className="p-5 min-h-screen">
@@ -266,8 +283,8 @@ export default function FileContentsPage() {
       )}
 
       {/* Data Table */}
-      <div className="overflow-x-auto">
-        <table className="table table-zebra w-full border border-gray-300 rounded-lg shadow-lg">
+      <div className="overflow-x-auto min-h-screen">
+        <table className="table table-compact w-full border border-gray-300 rounded-lg shadow-lg">
           <thead className="bg-primary text-white">
             <tr>
               {headers.map((col) => (
@@ -278,9 +295,9 @@ export default function FileContentsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-
-            {filteredData.map((row: any, rowIndex: number) => (
-              <tr key={rowIndex} className="hover:bg-gray-100">
+            
+            {currentItems.map((row: any, rowIndex: number) => (
+              <tr key={rowIndex} className={`${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-100"} hover:bg-blue-200 `}>
                 {headers.map((header, colIndex) => (
                   <td key={colIndex} className="px-4 py-3">
                     {header === "Leave Permission\r\nColumn from Mgr" ? (
@@ -342,6 +359,66 @@ export default function FileContentsPage() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination  Content */}
+      <div className="flex justify-center mt-4">
+        <div className="join">
+        <div className="btn-group">
+        {/* Previous page arrow */}
+        <button
+          className="join-item btn btn-sm"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          «
+        </button>
+
+        {/* Previous group button (if available) */}
+        {startPage > 1 && (
+          <button
+            className="join-item btn btn-sm"
+            onClick={() => setCurrentPage(startPage - 1)}
+          >
+            ...
+          </button>
+        )}
+
+        {/* Page number buttons for the current group */}
+        {Array.from({ length: endPage - startPage + 1 }, (_, index) => {
+          const pageNumber = startPage + index;
+          return (
+            <button
+              key={pageNumber}
+              className={`join-item btn btn-sm ${currentPage === pageNumber ? "btn-active" : ""}`}
+              onClick={() => setCurrentPage(pageNumber)}
+            >
+              {pageNumber}
+            </button>
+          );
+        })}
+
+        {/* Next group button (if available) */}
+        {endPage < totalPages && (
+          <button
+            className="join-item btn btn-sm"
+            onClick={() => setCurrentPage(endPage + 1)}
+          >
+            ...
+          </button>
+        )}
+
+        {/* Next page arrow */}
+        <button
+          className="join-item btn btn-sm"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          »
+        </button>
+      </div>
+
+        </div>
       </div>
     </div>
   );

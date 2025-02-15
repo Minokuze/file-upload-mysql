@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+src/app/api/gmail/callback/route.ts
+package.json
+package-lock.json
+src/app/api/gmail/auth/route.ts
