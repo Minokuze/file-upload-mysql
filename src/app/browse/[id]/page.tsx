@@ -328,27 +328,29 @@ export default function FileContentsPage() {
                         <option value="Cancel request">Cancel request</option>
                       </select>
                     ) : header === "Remark from Mgr" ? (
-                      <textarea
-                        className="textarea textarea-bordered"
+                      <input
+                        type="text"
+                        className="input input-bordered w-full"
                         value={row[header] || ""}
-                        onChange={(e)=>{
-                          const newvalue = e.target.value;
-                          setFileData((prev:any) =>{
-                          //find the actual index of the row in the original fileData.data
-                          const actualIndex = prev.data.findIndex((r:any) => r===row);
-                          if (actualIndex === -1) 
-                            return prev; //safety check
-                          //Create a new data array with the updated row
-                          const newData = [...prev.data];
-                          newData[actualIndex] = {
-                            ...newData[actualIndex],
-                            [header]: newvalue,
-                          };
-                          return {...prev,data:newData};
-                          })
-                          
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          setFileData((prev: any) => {
+                            // Find the actual index of the row in the original fileData.data
+                            const actualIndex = prev.data.findIndex((r: any) => r === row);
+                            if (actualIndex === -1) return prev; // Safety check
+
+                            // Create a new data array with the updated row
+                            const newData = [...prev.data];
+                            newData[actualIndex] = {
+                              ...newData[actualIndex],
+                              [header]: newValue,
+                            };
+
+                            return { ...prev, data: newData };
+                          });
                         }}
                       />
+
                     )
                      : (
                       pipe(row[header])
