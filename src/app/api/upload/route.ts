@@ -1,6 +1,5 @@
-// app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import ExcelJS from "exceljs";
+import * as XLSX from "xlsx";
 import pool from "@/lib/db";
 
 export async function POST(req: NextRequest) {
@@ -11,7 +10,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
 
   // Save file to MySQL
   await pool.query(
@@ -19,24 +19,13 @@ export async function POST(req: NextRequest) {
     [file.name, buffer]
   );
 
-  // Convert to JSON
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
+  // Parse Excel file using xlsx
+  const workbook = XLSX.read(arrayBuffer, { type: "buffer" });
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
 
-  const worksheet = workbook.worksheets[0];
-  const jsonData: any[] = [];
-
-  worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-    if (rowNumber === 1) return; // Skip header
-
-    const rowData: any = {};
-    row.eachCell((cell, colNumber) => {
-      const header = worksheet.getRow(1).getCell(colNumber).value;
-      rowData[header as string] = cell.value;
-    });
-
-    jsonData.push(rowData);
-  });
+  // Convert worksheet to JSON
+  const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
   return NextResponse.json(jsonData);
 }
